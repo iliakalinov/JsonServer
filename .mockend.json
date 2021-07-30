@@ -1,6 +1,7 @@
 {
   "Post": {
-    "title": { "string": {} },
+    "type": { "string": {} },
+    "data": { "string": {} },
     "comments": {
       "hasMany": "Comment"
     }

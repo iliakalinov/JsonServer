@@ -3,5 +3,11 @@
     "type": { "string": {} },
     "data": { "string": {} },
         }
+  },
+  "Comment": {
+    "body": { "string": {} },
+    "post": {
+      "belongsTo": "Post"
+    }
   }
 }

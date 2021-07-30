@@ -9,50 +9,49 @@ public class httpRequestExample : MonoBehaviour
 {
     [SerializeField] private string url;
 
+    delegate void Message();
+    private Message mes;
+
+    //for message 
+    private const string type = "testType";
+    private const string data = "testdata";
+
+
+    //time
+    private float cooldownBeforeSend=5f;
+
 
     private void Start()
     {
-        StartCoroutine(SendRequest());
+
+    }
+
+    private void Update()
+    {
+        if (mes!=null) {
+            Invoke(nameof(sendEvents), cooldownBeforeSend); 
+        }
+
     }
 
 
-
-    private IEnumerator SendRequest()
+    private void newEvetn()
     {
+        StartCoroutine(TrackEvent(type.ToString(), data.ToString()));
 
-
-
-        //GET    получить------------------------------------------------
-        /* UnityWebRequest request = UnityWebRequest.Get(this.url);
-
-           yield return request.SendWebRequest();
-
-           //  Debug.Log(request.downloadHandler.text);//write all
-
-
-           //TODO
-           string json = "{\"posts\":" + request.downloadHandler.text + "}";
-
-           Response response = JsonUtility.FromJson<Response>(json);
-
-
-           Debug.Log("UserID:" + response.posts[0].userId);
-           Debug.Log("id:" + response.posts[0].id);
-           Debug.Log("title:" + response.posts[0].title);
-           Debug.Log("body:" + response.posts[0].body);*/
-
-
+    }
+    private IEnumerator TrackEvent(string type, string data)
+    {
 
         //Post  создать------------------------------------------------------------
 
-        /*  WWWForm formData = new WWWForm();
+        WWWForm formData = new WWWForm();
 
-          PostStruct post = new PostStruct()
-          {
-              user    Id = 101,
-              title = "test",
-              body = "Created new Objects"
-          };
+        PostStruct post = new PostStruct()
+        {
+            title = type,                                               
+            body = data
+        };
 
           string json = JsonUtility.ToJson(post);
           UnityWebRequest request = UnityWebRequest.Post(this.url, formData);
@@ -67,52 +66,32 @@ public class httpRequestExample : MonoBehaviour
 
           yield return request.SendWebRequest();
 
-          PostStruct postFromServer = JsonUtility.FromJson<PostStruct>(request.downloadHandler.text);
-
-
-
-          Debug.Log("UserID:" + postFromServer.userId);
-          Debug.Log("id:" + postFromServer.id);
-          Debug.Log("title:" + postFromServer.title);
-          Debug.Log("body:" + postFromServer.body); */
-
-
-        //Put           ---обновить
-
-        /*PostStruct post = new PostStruct()
+        if(request.isNetworkError)
         {
-            userId = 101,
-            title = " Update test",
-            body = "Update new Objects"
-        };
+            Debug.Log("NetworkError");
+        }
+        else
+        {
+            Debug.Log("Response Code :" + request.responseCode);
 
-        string json = JsonUtility.ToJson(post);
+            PostStruct postFromServer = JsonUtility.FromJson<PostStruct>(request.downloadHandler.text);
 
-        UnityWebRequest request = UnityWebRequest.Put(this.url, json);
+            Debug.Log("id:" + postFromServer.id);
+            Debug.Log("type:" + postFromServer.title);            //type
+            Debug.Log("data:" + postFromServer.body);             //data
+        }
 
-        request.SetRequestHeader("Content-Type", "application/json; charset= UTF-8");
+    }
 
+    public void addnewEvent()
+    {
+         mes += newEvetn;
+    }
 
-        yield return request.SendWebRequest();
-
-        PostStruct postFromServer = JsonUtility.FromJson<PostStruct>(request.downloadHandler.text);
-
-        Debug.Log("UserID:" + postFromServer.userId);
-        Debug.Log("id:" + postFromServer.id);
-        Debug.Log("title:" + postFromServer.title);
-        Debug.Log("body:" + postFromServer.body); 
-
-         */
-
-        //DELETE
-        UnityWebRequest request = UnityWebRequest.Delete(this.url);
-        yield return request.SendWebRequest();
-
-        Debug.Log(request.responseCode); 
-
-
-
-
+    public void sendEvents()
+    {
+        mes?.Invoke();
+        mes = null;
     }
 
 }
